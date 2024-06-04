@@ -53,7 +53,7 @@
 					<button type="submit" >Tìm kiếm</button>
 				</form>
 				<form action="GDcapnhap.php" method="POST" >
-					<button type="submit" >Cập nhập</button>
+					<button type="submit" >Cập nhật</button>
 				</form>
             <?php } else { ?>
                 <div>
