@@ -1,0 +1,158 @@
+* {
+    margin: 0; /* Loại bỏ khoảng cách mặc định của tất cả các phần tử */
+    padding: 0; /* Loại bỏ khoảng đệm mặc định của tất cả các phần tử */
+    box-sizing: border-box; /* Thiết lập kích thước của tất cả các phần tử để bao gồm viền và khoảng đệm */
+}
+
+.left-body {
+    padding-top: 20px; /* Khoảng đệm phía trên là 20 pixel */
+    padding-left: 10px; /* Khoảng đệm bên trái là 10 pixel */
+    width: 70%; /* Chiều rộng của phần tử chiếm 70% chiều rộng của phần tử cha */
+    float: left; /* Đẩy phần tử về phía bên trái và làm các phần tử khác nổi về phía bên phải */
+}
+
+.right-body{
+    height: 560px;
+    width: 30%;
+	float: right; /* các phần tử sẽ nổi về phía bên phải */
+}
+
+/* radio tương ứng với 4 câu trả  lời*/
+.checkbox-inline {
+    display: inline-block; /* Hiển thị phần tử dưới dạng khối nội tuyến */
+    padding-left: 20px; /* Khoảng đệm bên trái của phần tử */
+    margin-bottom: 0; /* Khoảng cách phía dưới của phần tử */
+    cursor: pointer; /* Biểu tượng con trỏ khi di chuột qua phần tử */
+}
+
+.left-question {
+    width: 100%;
+    height: fit-content;
+    padding-left: 10px;
+}
+
+.btn-submit{  /* button nộp bài */
+    width: 100%;
+    height: 20%;
+	background-color: blue; 
+	padding: 15px 32px;
+}
+
+.cautraloi {
+    font-size: 20px; /* Kích thước chữ */
+    border: 1px solid; /* Định dạng viền cho phần tử */
+    width: 90%; /* Chiều rộng của phần tử chiếm 90% chiều rộng của phần tử cha */
+    margin: 0.8em; /* Khoảng cách xung quanh phần tử */
+}
+
+.right-time{
+    width: 100%;
+    height: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    border: 1px solid;
+    border-radius: 10px;
+}
+
+.right-button{
+    padding-top: 30px;
+    width: 100%;
+    height: 40%;
+}
+
+/* 25 button câu hỏi */
+.panel-body {
+    display: flex; /* Sử dụng mô hình flexbox cho phần tử */
+    flex-wrap: wrap; /* Cho phép các phần tử con xuống dòng khi không đủ chỗ */
+    justify-content: space-around; /* Căn chỉnh các phần tử con với khoảng cách đều nhau */
+}
+
+
+/* button CÂU HỎI */
+.btn {
+	padding: 10px 20px;
+	background-color: #3498db;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}	
+
+.btn-cauhoi {
+    margin: 0.15em; /* Khoảng cách xung quanh nút */
+    margin-bottom: 0.3em; /* Khoảng cách dưới của nút */
+    font-size: 1.2em; /* Kích thước chữ bên trong nút */
+    width: 2.7em; /* Chiều rộng của nút */
+}
+
+
+/*header */
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 10px; /* Khoảng cách dưới của phần tử */
+	background-color: #fff; /* Màu nền của phần tử */
+    padding: 10px 20px; /* Khoảng đệm bên trong phần tử */
+}
+
+.header img {
+	height: 70px;
+	margin-right: 20px;
+}
+.header .name {
+	font-size: 24px;
+	font-weight: bold;
+	flex-grow: 1;
+}
+
+.header button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	background-color: red;
+	color: white;
+	gap: 10px; /* Khoảng cách giữa các nút */
+}
+
+.header .btn-exit a {
+	color: white;
+	text-decoration: none;
+}
+
+/* menu */
+.menu-container {
+	text-align: center;
+	font-size: 20px;
+	background-color: #fff; /* Màu nền của phần tử */
+    padding: 10px 20px; /* Khoảng đệm bên trong phần tử */
+}
+.menu {
+	display: flex;
+	justify-content: center;
+	gap: 20px; /* Khoảng cách giữa các phần tử con   */
+}
+.menu button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	background-color: #4CAF50;
+	color: white;
+}
+
+/*  Body */
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Arial, sans-serif;
+	background-color: #f0f0f0;
+}
+
+
+

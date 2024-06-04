@@ -1,0 +1,7 @@
+placeholder="Tài khoản" ; gợi ý cho người dung cần nhập dữ liệu gì
+
+<label> trong HTML được sử dụng để đại diện cho một nhãn cho các phần tử như <button>, <input>, Khi người dùng nhấp vào văn bản bên trong thẻ <label>, nó sẽ kích hoạt phần tử điều khiển tương ứng (ví dụ: checkbox hoặc radio button)1.
+
+session_unset(); // Xóa tất cả các biến session
+session_destroy(); // Hủy session
+hủy bỏ dữ liệu phiên được lưu trữ trong lưu trữ phiên
