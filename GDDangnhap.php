@@ -33,8 +33,30 @@
 			}			
 		}
 		
+		// Xử lý đổi mật khẩu khi người dùng nhấn nút Đổi mật khẩu
+		if (isset($_POST['doimatkhau'])) {
+			$tk = $_POST['taikhoan'];
+			$newPass = $_POST['newpassword'];
+			
+			$kn = mysqli_connect("localhost", "root", "", "thilaixea1");
+			
+			$updatePassQuery = "UPDATE thongtinthisinh SET password = '".$newPass."' WHERE username = '".$tk."'";
+			$result = mysqli_query($kn, $updatePassQuery);
+			
+			if ($result) {
+				$message = "Đổi mật khẩu thành công. Đăng nhập lại với mật khẩu mới.";
+			} else {
+				$errorMessage = "Đổi mật khẩu không thành công. Vui lòng thử lại sau.";
+			}
+			
+			mysqli_close($kn);
+		}
+			
 		// dong ket noi, bo qua buoc don dep tai nguyen
 		mysqli_close($kn);
+		
+ 
+
 	}
 ?>
 
@@ -96,11 +118,40 @@
 			background-color: #28a745; /* Màu nền của nút (màu xanh lá cây) */
 			margin-top: 10px; /* Khoảng cách phía trên của nút */
         }
-		/** căn trái checkbox */
+		
         .form-luumk {
-            text-align: left;
-        }
+			display: flex; /* Sử dụng Flexbox */
+			align-items: center; /* Căn giữa theo chiều dọc */
+			justify-content: space-between; /* Giữ khoảng cách giữa các phần tử */
+			font-family: Arial, sans-serif; /* Font chữ */
+			color: #333; /* Màu chữ chính */
+		}
+
+		.form-luumk label {
+			font-size: 14px; /* Kích thước chữ */
+			margin: 0; /* Loại bỏ khoảng cách mặc định */
+			display: flex; /* Đảm bảo label và checkbox trên cùng một dòng */
+			align-items: center; /* Căn giữa theo chiều dọc */
+		}
+
+		.form-luumk input[type="checkbox"] {
+			margin-right: 5px; /* Khoảng cách giữa checkbox và label */
+		}
+
+		.form-luumk a {
+			font-size: 14px; /* Kích thước chữ của link */
+			color: #007bff; /* Màu chữ của link */
+			text-decoration: none; /* Loại bỏ gạch chân mặc định */
+			margin-left: 10px; /* Khoảng cách với phần tử trước (nếu có) */
+			transition: color 0.3s; /* Hiệu ứng chuyển màu */
+		}
+
+		.form-luumk a:hover {
+			color: #0056b3; /* Màu khi hover */
+			text-decoration: underline; /* Gạch chân khi hover */
+		}
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -109,12 +160,18 @@
             <div style="color: red;"><?php echo $errorMessage; ?></div>
         <?php endif; ?>
         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
-            <input type="text" name="taikhoan" placeholder="Tài khoản" required>
+ 
+			<input type="text" name="taikhoan" placeholder="Tài khoản" required>
+
             <input type="password" name="matkhau" placeholder="Mật khẩu" required>
+			
             <div class="form-luumk">
-                <input type="checkbox" name="luumk">
-                <label><i>Lưu mật khẩu</i></label>
-            </div>
+				<label>
+					<input type="checkbox" name="luumk"> Lưu mật khẩu
+				</label>
+				<a href="GDdoiMK.php">Quên mật khẩu</a>
+			</div>
+			
             <input type="submit" name="login" value="Đăng nhập">
         </form>
         <form action="GDdangky.php" method="POST">

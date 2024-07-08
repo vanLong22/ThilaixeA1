@@ -16,8 +16,19 @@ $connect = mysqli_connect("localhost", "root", "", "thilaixea1");
 $questions = array();
 
 // Thực hiện truy vấn SQL
-$dataQuery = "SELECT CauHoi, CauA, CauB, CauC, CauD, DapAn, HinhAnh, CauHoiLiet FROM cauhoi LIMIT " . ($_SESSION['maDe']) . ", 25";
+$dataQuery = "SELECT CauHoi, CauA, CauB, CauC, CauD, DapAn, HinhAnh FROM cauhoiliet ";
+
+// Câu truy vấn SQL để đếm số câu hỏi
 $resultQuery = mysqli_query($connect, $dataQuery);
+
+// khởi tại ss
+if(!isset($_SESSION['answerCorrectsDapAnLiet'])){
+	$_SESSION['answerCorrectsDapAnLiet'] = array();
+}
+if(!isset($_SESSION['selectedAnswerCauHoiLiet'])) {
+	$_SESSION['selectedAnswerCauHoiLiet'] = array();
+}
+
 
 // lặp qua từng dòng kết quả của truy vấn và đưa dữ liệu vào mảng
 while ($row = mysqli_fetch_assoc($resultQuery)) {
@@ -31,16 +42,17 @@ while ($row = mysqli_fetch_assoc($resultQuery)) {
         ),
         "correct_answer" => $row['DapAn'],
         "image" => $row['HinhAnh'],
-        "cauHoiLiet" => $row['CauHoiLiet']
     );
 
-    // Thêm  dư liệu câu hỏi vào mảng      
+    // Thêm  dư liệu của 25 câu hỏi vào mảng chính      
     $questions[] = $question;
 	
 	// cần sử dụng để tính toán kết quả 
-	$_SESSION['answerCorrects'][] = $row['DapAn'];
-    $_SESSION['checkDiemLiet'][] = $row['CauHoiLiet'];
+	$_SESSION['answerCorrectsDapAnLiet'][] = $row['DapAn'];
 }
+
+// đếm tổng số câu hỏi liệt
+$totalQuestions = count($questions);
 
 // dong ket noi
 mysqli_close($connect);
@@ -52,20 +64,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['questionID'])) { // ki
 		$chonDapAn = $_POST[$questionID];
 		switch($chonDapAn) {
 			case "A":
-				$_SESSION['selectedAnswer'][$questionID] = 1;
+				$_SESSION['selectedAnswerCauHoiLiet'][$questionID] = 1;
 				break;
 			case "B":
-				$_SESSION['selectedAnswer'][$questionID] = 2;
+				$_SESSION['selectedAnswerCauHoiLiet'][$questionID] = 2;
 				break;
 			case "C":
-				$_SESSION['selectedAnswer'][$questionID] = 3;
+				$_SESSION['selectedAnswerCauHoiLiet'][$questionID] = 3;
 				break;
 			case "D":
-				$_SESSION['selectedAnswer'][$questionID] = 4;
+				$_SESSION['selectedAnswerCauHoiLiet'][$questionID] = 4;
 				break;
 			default:
 				// trường hợp ko chọn câu trả lời nào
-				$_SESSION['selectedAnswer'][$questionID] = 0;
+				$_SESSION['selectedAnswerCauHoiLiet'][$questionID] = 0;
 				break;
 		}
 	}
@@ -85,7 +97,7 @@ if (isset($_POST['page'])) {
 $itemsPerPage = 1;
 
 // Tổng số câu hỏi
-$totalItems = 25;
+$totalItems = $totalQuestions;
 
 // Tính tổng số trang
 $totalPages = ceil($totalItems / $itemsPerPage);
@@ -96,7 +108,7 @@ $currentpage = $_SESSION['currentpage'];
 // Đảm bảo trang hiện tại không nhỏ hơn 1 và không lớn hơn tổng số trang
 $currentpage = max(1, min($currentpage, $totalPages));
 
-// Tính chỉ số bắt đầu và kết thúc của mục trên trang hiện tại
+// xác định số lượng câu hỏi cần hiển thị trên trang hiện tại 
 $startIndex = ($currentpage - 1) * $itemsPerPage;
 $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 
@@ -113,6 +125,7 @@ if (!isset($_SESSION['exam_deadline'])) {
 } else {
     $deadline = $_SESSION['exam_deadline'];
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -160,12 +173,7 @@ if (!isset($_SESSION['exam_deadline'])) {
         <!--End head-->
 		
         <div class="title">
-			<?php // tính mã đề
-				$phanNguyen = floor(($_SESSION['maDe']+1) / 25);
-				$phanDu = ($_SESSION['maDe']+1) % 25; 
-				$soDe = $phanNguyen + $phanDu;
-			?>
-            <h1 style="text-align: center; padding: 10px;">THI THỬ BẰNG LÁI XE ĐỀ <?php echo $soDe; ?> </h1>
+            <h1 style="text-align: center; padding: 10px;">BỘ CÂU HỎI LIỆT </h1>
         </div>
 		
 		<!--Begin form-->
@@ -191,7 +199,7 @@ if (!isset($_SESSION['exam_deadline'])) {
 						<label>
 							<div class="cautraloi">
 								<label class="checkbox-inline" for="radioA">
-									<input type="radio" type="submit" id="radioA" name="<?php echo $i; ?>" value="A" onclick="submitForm(<?php echo $currentpage; ?>)" <?php  if (isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 1) echo "checked='checked'";?>> 
+									<input type="radio" type="submit" id="radioA" name="<?php echo $i; ?>" value="A" onclick="submitForm(<?php echo $currentpage; ?>)" <?php  if (isset($_SESSION['selectedAnswerCauHoiLiet'][$i]) && $_SESSION['selectedAnswerCauHoiLiet'][$i] == 1) echo "checked='checked'";?>> 
 									<?php echo $question['answers']['A']; ?>
 								</label><br>
 							</div>
@@ -200,7 +208,7 @@ if (!isset($_SESSION['exam_deadline'])) {
 						<label>
 							<div class="cautraloi">
 								<label class="checkbox-inline" for="radioB">                                       
-									<input type="radio" type="submit" id="radioB" name="<?php echo $i; ?>"  value="B" onclick="submitForm(<?php echo $currentpage; ?>)" <?php if (isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 2) echo "checked='checked'";?>>
+									<input type="radio" type="submit" id="radioB" name="<?php echo $i; ?>"  value="B" onclick="submitForm(<?php echo $currentpage; ?>)" <?php if (isset($_SESSION['selectedAnswerCauHoiLiet'][$i]) && $_SESSION['selectedAnswerCauHoiLiet'][$i] == 2) echo "checked='checked'";?>>
 									<?php echo $question['answers']['B']; ?>
 								</label><br>
 							</div>
@@ -210,7 +218,7 @@ if (!isset($_SESSION['exam_deadline'])) {
 							<?php if ($question['answers']['C'] != 0): ?>
 								<div class="cautraloi">
 									<label class="checkbox-inline" for="radioC">
-										<input type="radio" type="submit" id="radioC" name="<?php echo $i; ?>" value="C" onclick="submitForm(<?php echo $currentpage; ?>)" <?php if (isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 3) echo "checked='checked'";?>>
+										<input type="radio" type="submit" id="radioC" name="<?php echo $i; ?>" value="C" onclick="submitForm(<?php echo $currentpage; ?>)" <?php if (isset($_SESSION['selectedAnswerCauHoiLiet'][$i]) && $_SESSION['selectedAnswerCauHoiLiet'][$i] == 3) echo "checked='checked'";?>>
 										<?php echo $question['answers']['C']; ?>
 									</label><br>
 								</div>
@@ -221,7 +229,7 @@ if (!isset($_SESSION['exam_deadline'])) {
 							<?php if ($question['answers']['D'] != 0): ?>
 								<div class="cautraloi">
 									<label class="checkbox-inline"for="radioD">
-										<input type="radio" type="submit" id="radioD" name="<?php echo $i; ?>" value="D" onclick="submitForm(<?php echo $currentpage; ?>)" <?php if (isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 4) echo "checked='checked'";?>>
+										<input type="radio" type="submit" id="radioD" name="<?php echo $i; ?>" value="D" onclick="submitForm(<?php echo $currentpage; ?>)" <?php if (isset($_SESSION['selectedAnswerCauHoiLiet'][$i]) && $_SESSION['selectedAnswerCauHoiLiet'][$i] == 4) echo "checked='checked'";?>>
 										<?php echo $question['answers']['D']; ?>
 									</label><br>
 								</div>
@@ -242,45 +250,12 @@ if (!isset($_SESSION['exam_deadline'])) {
 			
 			<!--Begin Right-->
 			<div class="right-body">
-				<input type="hidden" id="deadline" name="deadline" value="<?php echo $deadline; ?>">
-                <div class="right-time" id="countdown">
-                    <script>
-                        function time_remaining(endtime) {
-                            var total = Date.parse(endtime) - Date.parse(new Date());
-                            var seconds = Math.floor((total / 1000) % 60);
-                            var minutes = Math.floor((total / 1000 / 60) % 60);
-                            return {
-                                'total': total,
-                                'minutes': minutes,
-                                'seconds': seconds
-                            };
-                        }
-                        
-                        function run_clock(id, endtime) {
-                            var clock = document.getElementById(id);
-                            function update_clock() {
-                                var t = time_remaining(endtime);
-                                clock.innerHTML = 'Thời gian còn lại: ' + t.minutes + ' phút ' + t.seconds + ' giây.';
-                                if (t.total <= 0) {
-                                    clearInterval(timeinterval);
-                                    // Tự động click vào nút "Nộp bài" khi thời gian kết thúc
-									document.getElementById("submit_button").click();
-                                }
-                            }
-                            update_clock();
-                            var timeinterval = setInterval(update_clock, 1000);
-                        }
-                        
-                        var deadline = new Date(<?php echo $_SESSION['exam_deadline'] * 1000; ?>);
-                        run_clock('countdown', deadline);
-                    </script>
-				</div>
 				<div class="right-button">
 					<div class="panel-body">
 						<div align="right" colspan="2">
 							<?php
 							for ($page = 1; $page <= $totalPages; $page++) {
-								$is_checked = (isset($_SESSION['selectedAnswer'][$page-1])) ? "checked" : ""; // Kiểm tra xem radio được chọn hay không
+								$is_checked = (isset($_SESSION['selectedAnswerCauHoiLiet'][$page-1])) ? "checked" : ""; // Kiểm tra câu hỏi này đã trả lời chưa
 								echo "<button class='btn btn-cauhoi $is_checked' type='submit' name='page' id='btncauhoi' value='$page'>$page</button>";
 								// sau 5 nút thì xuống dòng
 								if($page % 5 == 0){
@@ -292,6 +267,7 @@ if (!isset($_SESSION['exam_deadline'])) {
 					</div>
 				</div>
 			</div>
+			
 			<!-- End right -->
 		</form>
 		<!-- End form -->
@@ -300,9 +276,9 @@ if (!isset($_SESSION['exam_deadline'])) {
 		<div>
 			<form action="GDketqua.php" method="POST">
 				<?php 
-					$ketQuaThi = sumQuestionCorrect();
+					$ketQuaThi = sumQuestionCorrect($totalQuestions);
 				?>
-				<button type="submit" class="btn-submit" id="submit_button" name="ketqua" value="<?php echo $ketQuaThi[0] . ',' . $ketQuaThi[1]; ?>">Nộp bài</button>
+				<button type="submit" class="btn-submit" id="submit_button" name="ketquathicauhoiliet" value="<?php echo htmlspecialchars($ketQuaThi); ?>">Nộp bài</button>
 			</form>
 		</div>
 	</div>
@@ -311,43 +287,16 @@ if (!isset($_SESSION['exam_deadline'])) {
 </html>
 
 <?php
-// hàm tính kết quả sau khi thi
-function sumQuestionCorrect(){
-    $countCorrect = 0; // đếm số câu hỏi đúng
-    $countIncorrectDiemLiet = 0; //đếm số câu hỏi liệt trả lời sai.
-
-	// duyệt 25 câu hỏi
-    for($i = 0; $i <= 24; $i++){
-		// kiểm tra nếu là câu hỏi liệt
-        if($_SESSION['checkDiemLiet'][$i] == 01){
-			// nếu tồn tại session vị trí $i
-			if(isset($_SESSION['selectedAnswer'][$i]) && isset($_SESSION['answerCorrects'][$i])){
-				// nếu câu trả lời của câu hỏi liệt khác đáp án thì tăng số câu hỏi liệt sai lên 1 đơn vị    
-				if($_SESSION['selectedAnswer'][$i] != $_SESSION['answerCorrects'][$i]){
-					$countIncorrectDiemLiet++;
-				}
-				// ngược lại tăng số câu trả lời đúng
-				else{
-					$countCorrect++;
-				}
-			}
-			else{
-				$countIncorrectDiemLiet++;
-			}
-        }
-		// không là câu hỏi liệt 
-        else {
-			// nếu câu trả lời trùng với đáp án thì tăng số câu trả lời đúng
-            if(isset($_SESSION['selectedAnswer'][$i]) && isset($_SESSION['answerCorrects'][$i]) && $_SESSION['selectedAnswer'][$i] == $_SESSION['answerCorrects'][$i]){
+function sumQuestionCorrect($totalQuestions)
+{
+    $countCorrect = 0;
+    for ($i = 0; $i < $totalQuestions; $i++) {
+        if (isset($_SESSION['selectedAnswerCauHoiLiet'][$i]) && isset($_SESSION['answerCorrectsDapAnLiet'][$i])) {
+            if ($_SESSION['selectedAnswerCauHoiLiet'][$i] == $_SESSION['answerCorrectsDapAnLiet'][$i]) {
                 $countCorrect++;
             }
-        }		
+        }
     }
-	
-	// trả về dưới dạng mảng tổng số câu trả lời đúng và tổng số câu hỏi liệt sai
-    return array($countCorrect, $countIncorrectDiemLiet);
+    return $countCorrect;
 }
 ?>
-
-
-

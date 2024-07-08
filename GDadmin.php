@@ -55,6 +55,9 @@
 				<form action="GDcapnhap.php" method="POST" >
 					<button type="submit" >Cập nhật</button>
 				</form>
+				<form action="GDxoataikhoan.php" method="POST" >
+					<button type="submit" >Xóa tài khoản</button>
+				</form>
             <?php } else { ?>
                 <div>
                     <p>Bạn cần phải đăng nhập để sử dụng chức năng này.</p>

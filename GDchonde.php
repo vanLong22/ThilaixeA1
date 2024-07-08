@@ -1,3 +1,9 @@
+<?php
+session_start();
+if(isset($_SESSION['tdnThiSinh'])){
+	
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +31,7 @@
 			<img src="https://th.bing.com/th/id/OIP.mx3kx2bpORHJwWuYx1hXwwHaHa?pid=ImgDet&w=200&h=200&c=7&dpr=1.3" style="width: auto; height: 50px;" alt="Logo">
 		</a>
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
-			<?php session_start(); echo $_SESSION['tdnThiSinh']; ?>
+			<?php  echo $_SESSION['tdnThiSinh']; ?>
 			<button class="btn-exit" type="submit" name="dangxuat" >Đăng xuất</button>
 		</form>
 	</div>
@@ -49,43 +55,41 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["de"])) {
 	$_SESSION['selectedAnswer'] = array(); // Mảng chứa câu trả lời đã chọn
 	$_SESSION['answerCorrects'] = array(); // Mảng chứa câu trả lời đúng
-	$_SESSION['countCorrect'] = 0; // Số câu trả lời đúng
-	$_SESSION['countIncorrectDiemLiet'] = 0; // Số câu trả lời sai dưới hình thức điểm liệt
-	$_SESSION['checkDiemLiet'] = array(); // Mảng kiểm tra câu trả lời điểm liệt
+	$_SESSION['checkDiemLiet'] = array(); // mảng lưu trữ các câu hỏi dưới hình thức điểm liệt 
 
 	$de = $_POST["de"];
 	switch($de){
 		case "de1":
 			$_SESSION['maDe'] = 0;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		case "de2":
 			$_SESSION['maDe'] = 25;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		case "de3":
 			$_SESSION['maDe'] = 50;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		case "de4":
 			$_SESSION['maDe'] = 75;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;	
 		case "de5":
 			$_SESSION['maDe'] = 100;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		case "de6":
 			$_SESSION['maDe'] = 125;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		case "de7":
 			$_SESSION['maDe'] = 150;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		case "de8":
 			$_SESSION['maDe'] = 175;
-			header('location:GDThi.php');
+			header('location:GDThiThu.php');
 			break;
 		default:
 			$_SESSION['maDe'] = 201;
@@ -102,4 +106,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['dangxuat'])) {
 	header("Location: GDtrangchu.php"); // Chuyển hướng người dùng về trang chủ
 	exit();
 }
+} // đóng điều kiện kiểm tra tên đăng nhập 
 ?>

@@ -9,6 +9,7 @@
     padding-left: 10px; /* Khoảng đệm bên trái là 10 pixel */
     width: 70%; /* Chiều rộng của phần tử chiếm 70% chiều rộng của phần tử cha */
     float: left; /* Đẩy phần tử về phía bên trái và làm các phần tử khác nổi về phía bên phải */
+	/*margin: 0 auto;*/
 }
 
 .right-body{
@@ -44,8 +45,8 @@
     width: 90%; /* Chiều rộng của phần tử chiếm 90% chiều rộng của phần tử cha */
     margin: 0.8em; /* Khoảng cách xung quanh phần tử */
 }
-
-.right-time{
+/*thời gian làm bài*/
+.right-time{ 
     width: 100%;
     height: 20%;
     display: flex;

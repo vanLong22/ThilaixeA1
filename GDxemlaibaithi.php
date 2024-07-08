@@ -16,7 +16,7 @@ $connect = mysqli_connect("localhost", "root", "", "thilaixea1");
 $questions = array();
 
 // Thực hiện truy vấn SQL
-$dataQuery = "SELECT CauHoi, CauA, CauB, CauC, CauD, DapAn, HinhAnh, CauHoiLiet FROM cauhoi LIMIT " . ($_SESSION['maDe']) . ", 25";
+$dataQuery = "SELECT * FROM luubaithi where username=".($_SESSION['tdnThiSinh'])." ";
 $resultQuery = mysqli_query($connect, $dataQuery);
 
 // Lặp qua kết quả của truy vấn và đưa dữ liệu vào mảng
@@ -31,15 +31,12 @@ while ($row = mysqli_fetch_assoc($resultQuery)) {
         ),
         "correct_answer" => $row['DapAn'],
         "image" => $row['HinhAnh'],
-        "cauHoiLiet" => $row['CauHoiLiet']
+        "CTL" => $row['CauTraLoi'] // câu trả lời thí sinh đã chọn
+		
     );
 
     // Thêm câu hỏi vào mảng chính
     $questions[] = $question;
-	
-	// cần sử dụng để tính toán kết quả 
-	$_SESSION['answerCorrects'][] = $row['DapAn'];
-    $_SESSION['checkDiemLiet'][] = $row['CauHoiLiet'];
 }
 
 // dong ket noi
@@ -63,6 +60,15 @@ $currentpage = max(1, min($currentpage, $totalPages));
 // Tính chỉ số bắt đầu và kết thúc của mục trên trang hiện tại
 $startIndex = ($currentpage - 1) * $itemsPerPage;
 $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
+
+// 2 button điều hướng câu hỏi
+$previousPage = max(1, $currentpage - 1);
+$nextPage = min($totalPages, $currentpage + 1);
+
+// lấy thông tin kết quả thi của thí sinh này
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -74,14 +80,41 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
     <link rel="stylesheet" href="style.css">
 	<style>
 		.checkedBlue {
-			background-color: blue;
+            background-color: blue;
+        }
+        .checkedGreen {
+            background-color: green;
+        }
+        .checkedRed {
+            background-color: red;
+        }
+		
+		.ketQuaThi {
+			 width: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			font-size: 20px;
+			border: 1px solid;
+			border-radius: 10px;
+			background-color: #f0f0f0; /* Màu nền */
+			padding: 10px; /* Khoảng cách bên trong */
 		}
-		.checkedGreen {
-			background-color: green;
+		.ketQuaThi label {
+			display: block;
+			margin-bottom: 5px;
+			font-weight: bold;
 		}
-		.checkedRed {
-			background-color: red;
-		}
+
+		.buttonChuyenTrang {
+            display: flex; /*bố trí các nút theo hàng ngang */
+            justify-content: space-between;  /* tạo khoảng cách giữa các nút*/
+            margin-top: 20px; /** Tạo khoảng cách trên 20 pixel giữa các phần tử(button) buttonChuyenTrang và phần tử phía trên nó. */        
+        }
+        .buttonChuyenTrang.btn {
+            width: 100px;  /*  Đặt chiều rộng cố định cho các nút bên trong phần tử buttonChuyenTrang là 100 pixel */
+        }
 	</style>
 </head>	
 <body>
@@ -100,12 +133,7 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
         <!--End head-->
 		
         <div class="title">
-			<?php
-				$phanNguyen = floor(($_SESSION['maDe']+1) / 25); // Phần nguyên
-				$phanDu = ($_SESSION['maDe']+1) % 25; // Phần dư
-				$soDe = $phanNguyen + $phanDu;
-			?>
-            <h1 style="text-align: center; padding: 10px;">XEM LẠI ĐỀ <?php echo $soDe; ?> </h1>
+            <h1 style="text-align: center; padding: 10px;">XEM LẠI BÀI THI </h1>
         </div>
 		
 		<!--Begin form-->
@@ -116,8 +144,8 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 						$question = $questions[$i]; 
 					}
 					// Kiểm tra xem có câu trả lời được chọn cho câu hỏi này hay không
-					if(isset($_SESSION['selectedAnswer'][$i])){   
-						if($_SESSION['selectedAnswer'][$i] == $_SESSION['answerCorrects'][$i]){
+					if(isset($question['CTL'])){   
+						if($question['CTL'] == $question['correct_answer']){
 							$is_checked_CTLDung = "checkedGreen";
 						}else{
 							$is_checked_DapAn = "checkedGreen";
@@ -140,16 +168,16 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 					
 					<div class="left-button">
 						<label>
-							<div class="cautraloi <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 1 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($_SESSION['answerCorrects'][$i] == 1 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 1 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
+							<div class="cautraloi <?php if(isset($question['CTL']) && $question['CTL'] == 1 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($question['correct_answer'] == 1 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($question['CTL']) && $question['CTL'] == 1 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
 								<label class="checkbox-inline" for="radioA">
 									<input type="radio" id="radioA" name="<?php echo $i; ?>" value="A"> 
 									<?php echo $question['answers']['A']; ?>
 								</label><br>
 							</div>
-						</label>
+						</label> 
 						 
 						<label>
-							<div class="cautraloi <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 2 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($_SESSION['answerCorrects'][$i] == 2 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 2 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
+							<div class="cautraloi <?php if(isset($question['CTL']) && $question['CTL'] == 2 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($question['correct_answer'] == 2 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($question['CTL']) && $question['CTL'] == 2 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
 								<label class="checkbox-inline" for="radioB">                                       
 									<input type="radio" id="radioB" name="<?php echo $i; ?>"  value="B">
 									<?php echo $question['answers']['B']; ?>
@@ -159,7 +187,7 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 						
 						<label>
 							<?php if ($question['answers']['C'] != 0): ?>
-								<div class="cautraloi <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 3 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($_SESSION['answerCorrects'][$i] == 3 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 3 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
+								<div class="cautraloi <?php if(isset($question['CTL']) && $question['CTL'] == 3 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($question['correct_answer'] == 3 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($question['CTL']) && $question['CTL'] == 3 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
 									<label class="checkbox-inline" for="radioC">
 										<input type="radio" id="radioC" name="<?php echo $i; ?>" value="C">
 										<?php echo $question['answers']['C']; ?>
@@ -170,7 +198,7 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 						
 						<label>
 							<?php if ($question['answers']['D'] != 0): ?>
-								<div class="cautraloi <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 4 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($_SESSION['answerCorrects'][$i] == 4 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($_SESSION['selectedAnswer'][$i]) && $_SESSION['selectedAnswer'][$i] == 4 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
+								<div class="cautraloi <?php if(isset($question['CTL']) && $question['CTL'] == 4 && isset($is_checked_CTLDung)) echo $is_checked_CTLDung; ?> <?php if($question['correct_answer'] == 4 && isset($is_checked_DapAn)) echo $is_checked_DapAn; ?> <?php if(isset($question['CTL']) && $question['CTL'] == 4 && isset($is_checked_CTLSai)) echo $is_checked_CTLSai; ?>">
 									<label class="checkbox-inline" for="radioD">
 										<input type="radio" id="radioD" name="<?php echo $i; ?>" value="D">
 										<?php echo $question['answers']['D']; ?>
@@ -181,6 +209,13 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 					</div>
 				<?php else: echo "Câu hỏi này không tồn tại."; ?>
 				<?php endif; ?>
+				
+					<!-- button điều hướng câu hỏi -->
+					<div class="buttonChuyenTrang">
+						<button class="btn" align="left" type="submit" name="page" value="<?php echo $previousPage; ?>" <?php if ($currentpage == 1) echo 'disabled'; ?>>Previous</button>
+						<button class="btn" align="right" type="submit" name="page" value="<?php echo $nextPage; ?>" <?php if ($currentpage == $totalPages) echo 'disabled'; ?>>Next</button>
+					</div>
+					
 				</div>
 				<!-- End left --> 
 			<?php } ?>
@@ -193,15 +228,20 @@ $endIndex = min($startIndex + $itemsPerPage - 1, $totalItems - 1);
 						<div align="right" colspan="2">
 							<?php
 							for ($page = 1; $page <= $totalPages; $page++) {
-								if(isset($_SESSION['selectedAnswer'][$page-1]) && isset($_SESSION['answerCorrects'][$page-1])) {
-									if ($_SESSION['selectedAnswer'][$page-1] == $_SESSION['answerCorrects'][$page-1]) {
+								if(isset($questions[$i])){ // nếu tồn tại câu hỏi này
+									$question = $questions[$page - 1]; 
+								}
+								if(isset($question['CTL']) && isset($question['correct_answer'])) {
+									if ($question['CTL'] == $question['correct_answer']) {
 										$is_checked = "checkedGreen"; // nếu câu trả lời đã được chọn và đúng 
 									} else {
 										$is_checked = "checkedRed"; // nếu câu trả lời đã được chọn nhưng sai   
 									}
-								} else {
-									$is_checked = "checkedBlue"; // nếu chưa có câu trả lời 
-								}
+									
+									if($question['CTL'] == ""){
+										$is_checked = "checkedBlue"; // nếu chưa chọn câu trả lời 
+									}
+								} 
 
 								echo "<button class='btn btn-cauhoi clickcauhoi btn-1 $is_checked' type='submit' name='page' value='$page'>$page</button>";
 								// sau 5 nút thì xuống dòng

@@ -19,7 +19,7 @@ $btnTitle = 'Thêm câu hỏi';
 $total = 0;
 
 // Kiểm tra xem đã có tham số sttCau trên URL chưa
-if (isset($_GET['sttCau'])) { // nếu là sửa câu hỏi
+if (isset($_GET['sttCau'])) {
     // Lấy sttCau từ URL
     $sttCau = $_GET['sttCau'];
 
@@ -36,7 +36,7 @@ if (isset($_GET['sttCau'])) { // nếu là sửa câu hỏi
     // Kiểm tra xem có dữ liệu trả về không
     if (mysqli_num_rows($result) == 1) {
         // Lấy thông tin của câu hỏi từ kết quả truy vấn
-        $row = mysqli_fetch_array($result);
+        $row = mysqli_fetch_assoc($result);
         $cauHoi = $row['CauHoi'];
         $cauA = $row['CauA'];
         $cauB = $row['CauB'];
@@ -48,7 +48,7 @@ if (isset($_GET['sttCau'])) { // nếu là sửa câu hỏi
     } else {
         echo "Không tìm thấy câu hỏi.";
     }
-} else if (isset($_GET['total'])) { // nếu là thêm câu hỏi
+} else if (isset($_GET['total'])) {
     $isEdit = false;
     $total = $_GET['total'];
     $sttCau = $total + 1;
@@ -68,13 +68,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $target_file = '';
 
-    if (!$isEdit) { // nếu là sửa câu hỏi
+    if (!$isEdit) {
         // Xử lý upload hình ảnh
         $target_dir = "image/"; // Thư mục lưu trữ hình ảnh
         $target_file = $target_dir . basename($_FILES["hinhAnh"]["name"]); // Đường dẫn tới hình ảnh
         echo  $target_file ;
         move_uploaded_file($_FILES["hinhAnh"]["tmp_name"], $target_file); // Di chuyển hình ảnh vào thư mục lưu trữ
-    } else { // nếu là thêm câu hỏi
+    } else {
         // Xử lý tải lên hình ảnh nếu có
         if (isset($_FILES['hinhAnh']['name']) && $_FILES['hinhAnh']['name'] !== '') {
             $target_dir = "image/";
@@ -90,8 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo "File không phải hình ảnh.";
                 $uploadOk = 0;
             }
-
-            //kiểm tra kích thước file ảnh
+//kiểm tra kích thước file ảnh
             if ($_FILES['hinhAnh']['size'] > 50000000) {
                 echo "Xin lỗi, file của bạn quá lớn.";
                 $uploadOk = 0;
@@ -123,9 +122,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Thực hiện truy vấn cập nhật
     $query_update = '';
-    if ($isEdit == true) { // nếu là sửa câu hỏi
+    if ($isEdit == true) {
         $query_update = "UPDATE cauhoi  SET CauHoi = '$cauHoi', CauA = '$cauA', CauB = '$cauB', CauC = '$cauC', CauD = '$cauD', DapAn = '$dapAn', HinhAnh = '$hinhAnh', CauHoiLiet = '$cauhoiliet' WHERE SttCau = $sttCau";
-    } else { // nếu là thêm câu hỏi
+    } else {
         $query_update = "INSERT INTO cauhoi (SttCau, CauHoi, HinhAnh, CauA, CauB, CauC, CauD, DapAn, CauHoiLiet) 
         VALUES ('$sttCau', '$cauHoi', '$target_file', '$cauA', '$cauB', '$cauC', '$cauD', '$dapAn','$cauhoiliet')";
     }
@@ -138,8 +137,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+
 // Đóng kết nối đến cơ sở dữ liệu
 mysqli_close($connect);
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -165,13 +166,22 @@ mysqli_close($connect);
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        text {
+            align-items: center;
+        }
+
+        label {
+            font-weight: bold;
         }
 
         input[type="text"],
         textarea,
         select {
             width: calc(100% - 16px);
-            /* Chiều rộng trừ đi khoảng cách padding */
+/* Chiều rộng trừ đi khoảng cách padding */
             padding: 8px;
             margin-top: 6px;
             margin-bottom: 16px;
@@ -196,12 +206,16 @@ mysqli_close($connect);
             /* Đặt chiều rộng button bằng 100% */
         }
 
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
         .button-container {
             display: flex;
             justify-content: space-between;
         }
 
-        .quaylai-button {
+        .exit-button {
             color :white;
             background-color: #4CAF50;
             text-align: center;
@@ -218,46 +232,50 @@ mysqli_close($connect);
 <body>
     <div class="container" style="height: inherit;">
         <h2 style="text-align: center;"><?php echo $title; ?></h2>
-        <form action="<?php echo $_SERVER['PHP_SELF'] . ($isEdit ? '?sttCau=' . $sttCau : '?total=' . $total); ?>" method="POST" enctype="multipart/form-data">
-            <label>Câu hỏi:</label><br>
-            <textarea name="cauHoi" rows="4" cols="50"><?php echo $cauHoi; ?></textarea><br>
+        <form action="<?php ($isEdit ? '?sttCau=' . $sttCau : '?total=' . $total); ?>" method="POST" enctype="multipart/form-data">
+            <label for="cauHoi">Câu hỏi:</label><br>
+            <textarea id="cauHoi" name="cauHoi" rows="4" cols="50"><?php echo $cauHoi; ?></textarea><br>
 
-            <label>Đáp án A:</label><br>
-            <input type="text" name="cauA" value="<?php echo $cauA; ?>"><br>
+            <label for="cauA">Đáp án A:</label><br>
+            <input type="text" id="cauA" name="cauA" value="<?php echo $cauA; ?>"><br>
 
-            <label>Đáp án B:</label><br>
-            <input type="text" name="cauB" value="<?php echo $cauB; ?>"><br>
+            <label for="cauB">Đáp án B:</label><br>
+            <input type="text" id="cauB" name="cauB" value="<?php echo $cauB; ?>"><br>
 
-            <label>Đáp án C:</label><br>
-            <input type="text" name="cauC" value="<?php echo $cauC; ?>"><br>
+            <label for="cauC">Đáp án C:</label><br>
+            <input type="text" id="cauC" name="cauC" value="<?php echo $cauC; ?>"><br>
 
-            <label>Đáp án D:</label><br>
-            <input type="text" name="cauD" value="<?php echo $cauD; ?>"><br>
+            <label for="cauD">Đáp án D:</label><br>
+            <input type="text" id="cauD" name="cauD" value="<?php echo $cauD; ?>"><br>
 
-            <label>Câu hỏi liệt:</label><br>
-            <select id="cauhoiliet" name="cauhoiliet">
-                <option value="01" >Có</option>
-                <option value="0" >Không</option>
+            <!-- <label for="cauhoiliet">Câu hỏi liệt:</label><br>
+            <input type="text" id="cauhoiliet" name="cauhoiliet" value="<?php echo $cauhoiliet; ?>"><br> -->
+
+            <label for="cauhoiliet">Câu hỏi liệt:</label><br>
+            <select id="cauhoiliet" name="cauhoiliet" required>
+                <option value="01" <?php echo $cauhoiliet == '01' ? 'selected' : ''; ?>>Có</option>
+                <option value="0" <?php echo $cauhoiliet == '0' ? 'selected' : ''; ?>>Không</option>
             </select><br>
 
-            <label>Đáp án đúng:</label><br>
+            <label for="dapAn">Đáp án đúng:</label><br>
             <select id="dapAn" name="dapAn">
                 <option value="1" <?php if ($dapAn == "1")
                     echo "selected"; ?>>1</option>
                 <option value="2" <?php if ($dapAn == "2")
-                    echo "selected"; ?>>2</option>
+echo "selected"; ?>>2</option>
                 <option value="3" <?php if ($dapAn == "3")
                     echo "selected"; ?>>3</option>
                 <option value="4" <?php if ($dapAn == "4")
                     echo "selected"; ?>>4</option>
             </select><br>
 
-            <label>Hình ảnh:</label><br>
+            <label for="hinhAnh">Hình ảnh:</label><br>
+            <span><?php echo str_replace('image/', '', $hinhAnh); ?></span>
             <input type="file" id="hinhAnh" name="hinhAnh"><br>
 
             <div class = "button-container">
                 <input type="submit" value="<?php echo $btnTitle; ?>" >
-                <a href="GDcapnhap.php" class="quaylai-button">Quay lại</a>        
+                <a href="GDcapnhat.php" class="exit-button">Quay lại</a>        
             </div>
     
         </form>
@@ -265,4 +283,4 @@ mysqli_close($connect);
     </div>
 </body>
 
-</html>
+</html>  
